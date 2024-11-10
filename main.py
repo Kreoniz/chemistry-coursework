@@ -27,6 +27,7 @@ FPS = 60
 # Загрузка данных из XYZ файла
 def load_xyz(file_path):
     atoms = []
+
     with open(file_path, "r") as file:
         lines = file.readlines()[2:]  # Пропускаем первые две строки
         for line in lines:
@@ -274,7 +275,7 @@ while running:
     )
     temp_x = slider_x + int(slider_width * (temperature / 100))
     pygame.draw.rect(screen, (255, 0, 0), (temp_x, slider_y, 10, slider_height))
-    temp_label = font.render(f"Temperature: {temperature}°C", True, (255, 255, 255))
+    temp_label = font.render(f"Температура: {temperature}°C", True, (255, 255, 255))
     screen.blit(temp_label, (slider_x, slider_y - slider_padding))
 
     # Обновление экрана
