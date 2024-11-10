@@ -123,18 +123,20 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # ЛКМ для перетаскивания
-                # Начало перетаскивания: фиксируем начальные координаты
-                dragging = True
-                mouse_start_x, mouse_start_y = pygame.mouse.get_pos()
-                initial_offset_x, initial_offset_y = offset_x, offset_y
-            elif event.button == 1:  # Проверка попадания по слайдеру температуры
                 mouse_x, mouse_y = pygame.mouse.get_pos()
+
                 if (
                     slider_x <= mouse_x <= slider_x + slider_width
                     and slider_y <= mouse_y <= slider_y + slider_height
                 ):
                     # Установка температуры по положению курсора на слайдере
                     temperature = int(100 * (mouse_x - slider_x) / slider_width)
+
+                else:
+                    # Начало перетаскивания: фиксируем начальные координаты
+                    dragging = True
+                    mouse_start_x, mouse_start_y = pygame.mouse.get_pos()
+                    initial_offset_x, initial_offset_y = offset_x, offset_y
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:  # ЛКМ
                 # Завершаем перетаскивание
