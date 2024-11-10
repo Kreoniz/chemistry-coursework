@@ -76,6 +76,15 @@ def rotate_y(x, z, angle):
     return x_rot, z_rot
 
 
+# Вращение вокруг всех осей
+def rotate_around_axis(x, y, z, angle_x, angle_y, angle_z):
+    # Вращение вокруг X, Y и Z
+    y, z = rotate_x(y, z, angle_x)
+    x, z = rotate_y(x, z, angle_y)
+    x, y = rotate_z(x, y, angle_z)
+    return x, y, z
+
+
 # Инициализация Pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -151,17 +160,17 @@ while running:
     # Управление вращением и масштабированием
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        angle_z -= 0.05  # Поворот против часовой стрелки вокруг Z
+        angle_y -= 0.05  # Поворот против часовой стрелки вокруг Z
     if keys[pygame.K_RIGHT]:
-        angle_z += 0.05  # Поворот по часовой стрелке вокруг Z
+        angle_y += 0.05  # Поворот по часовой стрелке вокруг Z
     if keys[pygame.K_UP]:
         angle_x += 0.05  # Поворот против часовой стрелки вокруг X
     if keys[pygame.K_DOWN]:
         angle_x -= 0.05  # Поворот по часовой стрелке вокруг X
     if keys[pygame.K_q]:
-        angle_y += 0.05  # Поворот против часовой стрелки вокруг Y
+        angle_z += 0.05  # Поворот против часовой стрелки вокруг Y
     if keys[pygame.K_e]:
-        angle_y -= 0.05  # Поворот по часовой стрелке вокруг Y
+        angle_z -= 0.05  # Поворот по часовой стрелке вокруг Y
     if keys[pygame.K_PLUS] or keys[pygame.K_EQUALS]:  # Увеличить масштаб
         scale += 2
     if keys[pygame.K_MINUS] or keys[pygame.K_UNDERSCORE]:  # Уменьшить масштаб
@@ -186,20 +195,21 @@ while running:
         y_shifted = atom["y"] - center_y_molecule
         z_shifted = atom["z"] - center_z_molecule
 
-        # Вращаем атом сначала вокруг оси X, затем вокруг оси Y и Z
-        y_rot_x, z_rot_x = rotate_x(y_shifted, z_shifted, angle_x)
-        x_rot_y, z_rot_y = rotate_y(x_shifted, z_rot_x, angle_y)
-        x_rot_z, y_rot_z = rotate_z(x_rot_y, y_rot_x, angle_z)
+        # Вращаем атом вокруг всех осей
+        x_rot, y_rot, z_rot = rotate_around_axis(
+            x_shifted, y_shifted, z_shifted, angle_x, angle_y, angle_z
+        )
 
-        # Добавляем координаты экрана и глубину для сортировки
-        x_screen = int(center_x + offset_x + x_rot_z * scale)
-        y_screen = int(center_y + offset_y - y_rot_z * scale)
+        # Координаты на экране
+        x_screen = int(center_x + offset_x + x_rot * scale)
+        y_screen = int(center_y + offset_y - y_rot * scale)
+
         jitter = temperature / 50
         x_screen += int(random.uniform(-jitter, jitter))
         y_screen += int(random.uniform(-jitter, jitter))
 
         # Добавляем в список с учетом глубины для сортировки
-        atoms_to_draw.append((z_rot_y, atom["element"], x_screen, y_screen))
+        atoms_to_draw.append((z_rot, atom["element"], x_screen, y_screen))
 
     # Сортировка по глубине, чтобы ближние атомы рендерились поверх дальних
     atoms_to_draw.sort(reverse=True, key=lambda atom: atom[0])
@@ -248,9 +258,9 @@ while running:
     # Легенда управления внизу
     legend_text = [
         "Управление:",
-        "Влево/Вправо - вращение вокруг Z",
         "Вверх/Вниз - вращение вокруг X",
-        "Q/E - вращение вокруг Y",
+        "Влево/Вправо - вращение вокруг Y",
+        "Q/E - вращение вокруг Z",
         "+/- - масштабирование",
         "W/A/S/D - перемещение",
     ]
