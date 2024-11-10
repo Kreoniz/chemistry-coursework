@@ -86,6 +86,9 @@ font = pygame.font.SysFont(None, 24)
 # Загрузка атомов из файла и вычисление центра
 atoms = load_xyz("./molecules/graphite.xyz")
 center_x_molecule, center_y_molecule, center_z_molecule = calculate_center(atoms)
+print(
+    f"Центр массы X: {center_x_molecule}\nЦентр массы Y: {center_y_molecule}\nЦентр массы Z: {center_z_molecule}"
+)
 
 # Центр экрана и начальные параметры масштабирования и перемещения
 center_x, center_y = WIDTH // 2, HEIGHT // 2
