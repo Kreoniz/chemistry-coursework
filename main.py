@@ -4,9 +4,18 @@ import random
 
 # Цвета для элементов и осей
 COLORS = {
-    "H": (255, 255, 255),  # Белый для водорода
-    "C": (50, 50, 50),  # Серый для углерода
-    "S": (255, 223, 0),  # Желтый для серы
+    "H": (255, 255, 255),  # Белый для водорода (White for Hydrogen)
+    "C": (50, 50, 50),  # Серый для углерода (Grey for Carbon)
+    "S": (255, 223, 0),  # Желтый для серы (Yellow for Sulphur)
+    "O": (255, 0, 0),  # Красный для кислорода (Red for Oxygen)
+    "Cl": (0, 255, 0),  # Зеленый для хлора (Green for Chlorine)
+    "N": (0, 0, 255),  # Синий для азота (Blue for Nitrogen)
+    "P": (255, 165, 0),  # Оранжевый для фосфора (Orange for Phosphorus)
+    "Other": (
+        128,
+        0,
+        0,
+    ),  # Темно-красный/Розовый/Марун для других элементов (Dark Red/Pink/Maroon for Other Elements)
     "X_axis": (255, 0, 0),  # Красный для оси X
     "Y_axis": (0, 255, 0),  # Зеленый для оси Y
     "Z_axis": (0, 0, 255),  # Синий для оси Z
@@ -14,9 +23,14 @@ COLORS = {
 
 # Коэффициенты радиусов атомов
 ATOM_SIZES = {
-    "H": 0.50,  # Маленький радиус для водорода
-    "C": 0.75,  # Средний радиус для углерода
-    "S": 1,  # Больший радиус для серы
+    "H": 0.53,  # Hydrogen
+    "C": 0.77,  # Carbon
+    "S": 1.04,  # Sulfur
+    "O": 0.60,  # Oxygen
+    "Cl": 0.99,  # Chlorine
+    "N": 0.65,  # Nitrogen
+    "P": 1.10,  # Phosphorus
+    "Other": 1.00,  # Other elements
 }
 
 # Параметры окна
@@ -218,13 +232,13 @@ while running:
     # Рисование атомов
     for _, element, x_screen, y_screen in atoms_to_draw:
         # Получаем цвет атома
-        color = COLORS.get(element, (255, 0, 0))
+        color = COLORS.get(element, COLORS["Other"])
 
         # Вычисляем радиус атома с учетом масштаба и типа атома
         base_size = ATOM_SIZES.get(
-            element, 0.2
+            element, ATOM_SIZES["Other"]
         )  # Если элемент не указан, используем 0.2 как базовый размер
-        atom_radius = max(1, int(scale * base_size))
+        atom_radius = int(scale * base_size)
 
         BORDER_COLOR = (0, 0, 0)  # Черный цвет для обводки
         pygame.draw.circle(screen, BORDER_COLOR, (x_screen, y_screen), atom_radius + 2)
