@@ -4,18 +4,18 @@ import random
 
 # Цвета для элементов и осей
 COLORS = {
-    "H": (255, 255, 255),  # Белый для водорода (White for Hydrogen)
-    "C": (50, 50, 50),  # Серый для углерода (Grey for Carbon)
-    "S": (255, 223, 0),  # Желтый для серы (Yellow for Sulphur)
-    "O": (255, 0, 0),  # Красный для кислорода (Red for Oxygen)
-    "Cl": (0, 255, 0),  # Зеленый для хлора (Green for Chlorine)
-    "N": (0, 0, 255),  # Синий для азота (Blue for Nitrogen)
-    "P": (255, 165, 0),  # Оранжевый для фосфора (Orange for Phosphorus)
+    "H": (255, 255, 255),  # Белый для водорода
+    "C": (50, 50, 50),  # Серый для углерода
+    "S": (255, 223, 0),  # Желтый для серы
+    "O": (255, 0, 0),  # Красный для кислорода
+    "Cl": (0, 255, 0),  # Зеленый для хлора
+    "N": (0, 0, 255),  # Синий для азота
+    "P": (255, 165, 0),  # Оранжевый для фосфора
     "Other": (
         128,
         0,
         0,
-    ),  # Темно-красный/Розовый/Марун для других элементов (Dark Red/Pink/Maroon for Other Elements)
+    ),  # Темно-красный/Розовый/Марун для других элементов
     "X_axis": (255, 0, 0),  # Красный для оси X
     "Y_axis": (0, 255, 0),  # Зеленый для оси Y
     "Z_axis": (0, 0, 255),  # Синий для оси Z
@@ -23,14 +23,24 @@ COLORS = {
 
 # Коэффициенты радиусов атомов
 ATOM_SIZES = {
-    "H": 0.53,  # Hydrogen
-    "C": 0.77,  # Carbon
-    "S": 1.04,  # Sulfur
-    "O": 0.60,  # Oxygen
-    "Cl": 0.99,  # Chlorine
-    "N": 0.65,  # Nitrogen
-    "P": 1.10,  # Phosphorus
-    "Other": 1.00,  # Other elements
+    "H": 0.53,
+    "C": 0.77,
+    "S": 1.04,
+    "O": 0.60,
+    "Cl": 0.99,
+    "N": 0.65,
+    "P": 1.10,
+    "Other": 1.00,
+}
+
+ATOMIC_MASSES = {
+    "H": 1.008,
+    "C": 12.011,
+    "S": 32.06,
+    "O": 15.999,
+    "Cl": 35.45,
+    "N": 14.007,
+    "P": 30.974,
 }
 
 # Параметры окна
@@ -58,12 +68,22 @@ def load_xyz(file_path):
 
 
 # Вычисление центра молекулы
-def calculate_center(atoms):
-    x_total = sum(atom["x"] for atom in atoms)
-    y_total = sum(atom["y"] for atom in atoms)
-    z_total = sum(atom["z"] for atom in atoms)
-    num_atoms = len(atoms)
-    return x_total / num_atoms, y_total / num_atoms, z_total / num_atoms
+def calculate_center_of_mass(atoms):
+    total_mass = 0
+    x_mass, y_mass, z_mass = 0, 0, 0
+
+    for atom in atoms:
+        element = atom["element"]
+        mass = ATOMIC_MASSES[element]
+        total_mass += mass
+        x_mass += atom["x"] * mass
+        y_mass += atom["y"] * mass
+        z_mass += atom["z"] * mass
+
+    center_x = x_mass / total_mass
+    center_y = y_mass / total_mass
+    center_z = z_mass / total_mass
+    return center_x, center_y, center_z
 
 
 # Функции вращения
@@ -109,22 +129,21 @@ font = pygame.font.SysFont(None, 24)
 
 # Загрузка атомов из файла и вычисление центра
 atoms = load_xyz("./molecules/graphite.xyz")
-center_x_molecule, center_y_molecule, center_z_molecule = calculate_center(atoms)
-print(
-    f"Центр массы X: {center_x_molecule}\nЦентр массы Y: {center_y_molecule}\nЦентр массы Z: {center_z_molecule}"
+center_x_molecule, center_y_molecule, center_z_molecule = calculate_center_of_mass(
+    atoms
 )
 
 # Центр экрана и начальные параметры масштабирования и перемещения
 center_x, center_y = WIDTH // 2, HEIGHT // 2
-scale = 50  # Начальный масштаб
+scale = 40  # Начальный масштаб
 offset_x, offset_y = 0, 0  # Смещение
 
 temperature = 0  # Начальная температура
 
 # Углы вращения
-angle_x = 0  # Поворот вокруг оси X
+angle_x = 135  # Поворот вокруг оси X
 angle_y = 0  # Поворот вокруг оси Y
-angle_z = 0  # Поворот вокруг оси Z
+angle_z = 90  # Поворот вокруг оси Z
 # Рисование атомов с сортировкой по глубине
 
 # Параметры слайдера
