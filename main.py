@@ -2,6 +2,8 @@ import pygame
 import math
 import random
 
+# C2C2 C2H C2S
+
 # Цвета для элементов и осей
 COLORS = {
     "H": (255, 255, 255),  # Белый для водорода
@@ -158,6 +160,29 @@ dragging = False
 mouse_start_x, mouse_start_y = 0, 0
 initial_offset_x, initial_offset_y = offset_x, offset_y
 
+# Дополнительные параметры для ползунка оптимизации
+slider_opt_x = 10
+slider_opt_y = HEIGHT - 165
+slider_opt_width = 300
+slider_opt_height = 10
+
+checkbox_rect = pygame.Rect(10, HEIGHT - 240, 20, 20)
+optimize_enabled = False
+optimization_steps = 0
+
+initial_atoms = []
+
+frame_counter = 0
+frame_delay = 1  # Задержка обновления оптимизации (каждые 10 кадров)
+
+
+def minimize_energy(atoms):
+    for atom in atoms:
+        atom["x"] += random.uniform(-0.02, 0.02)
+        atom["y"] += random.uniform(-0.02, 0.02)
+        atom["z"] += random.uniform(-0.02, 0.02)
+
+
 # Основной цикл
 running = True
 while running:
@@ -191,6 +216,10 @@ while running:
                 offset_x = initial_offset_x + (mouse_x - mouse_start_x)
                 offset_y = initial_offset_y + (mouse_y - mouse_start_y)
 
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_o:
+                optimize_enabled = not optimize_enabled
+
     # Управление вращением и масштабированием
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -221,8 +250,36 @@ while running:
     # Очистка экрана
     screen.fill((0, 0, 0))
 
+    if optimize_enabled:
+        if frame_counter % frame_delay == 0:
+            if optimization_steps >= 100:
+                optimization_steps = 0
+                print(initial_atoms)
+                atoms = initial_atoms.copy()
+            else:
+                minimize_energy(atoms)
+                optimization_steps += 1
+
+    if optimization_steps == 0 and not initial_atoms:
+        initial_atoms = atoms.copy()
+
+    frame_counter += 1  # Увеличиваем счетчик кадров
+
+    # Draw checkbox
+    pygame.draw.rect(screen, (255, 255, 255), checkbox_rect, 2)
+    if optimize_enabled:
+        pygame.draw.rect(screen, (0, 255, 0), checkbox_rect.inflate(-4, -4))
+
+    checkbox_label = font.render(
+        f"Оптимизация {'' if optimize_enabled else 'не'} запущена",
+        True,
+        (255, 255, 255),
+    )
+    screen.blit(checkbox_label, (checkbox_rect.x + 30, checkbox_rect.y + 2))
+
     # Рисование атомов с сортировкой по глубине
     atoms_to_draw = []
+
     for atom in atoms:
         # Сдвигаем атом относительно центра молекулы
         x_shifted = atom["x"] - center_x_molecule
@@ -310,6 +367,21 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), (temp_x, slider_y, 10, slider_height))
     temp_label = font.render(f"Температура: {temperature}°C", True, (255, 255, 255))
     screen.blit(temp_label, (slider_x, slider_y - slider_padding))
+
+    # Рисуем слайдер оптимизации
+    pygame.draw.rect(
+        screen,
+        (150, 150, 150),
+        (slider_opt_x, slider_opt_y, slider_opt_width, slider_opt_height),
+    )
+    opt_x = slider_opt_x + int(slider_opt_width * (optimization_steps / 100))
+    pygame.draw.rect(screen, (0, 0, 255), (opt_x, slider_opt_y, 10, slider_opt_height))
+    opt_label = font.render(
+        f"Шаги оптимизации: {optimization_steps}.\nнажмите O, чтобы запустить",
+        True,
+        (255, 255, 255),
+    )
+    screen.blit(opt_label, (slider_opt_x, slider_opt_y - 40))
 
     # Обновление экрана
     pygame.display.flip()
